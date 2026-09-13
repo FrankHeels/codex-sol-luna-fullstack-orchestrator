@@ -323,8 +323,6 @@ try {
     $installed = 0
     foreach ($component in '.codex', '.agents', 'AGENTS.md') {
         if (Read-Confirmation -Prompt "Install ${component}?" -DefaultYes $true) {
-            if (Install-Component -Name $component -TargetDirectory $targetDirectory) {
-        if (Read-Confirmation -Prompt "Install $component?" -DefaultYes $true) {
             $result = if ($component -eq '.codex') {
                 Install-Component -Name $component -TargetDirectory $targetDirectory -SourcePath (Join-Path $profileDirectory "codex")
             }
