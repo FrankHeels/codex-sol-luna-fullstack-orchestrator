@@ -12,6 +12,8 @@ The installer asks which Codex plan you are on. Pro uses GPT-6 Astra at medium r
 │   ├── pro/
 │   │   ├── codex/           (config.toml and agents/*.toml)
 │   │   └── agents/          (skills/astra-orchestrator/SKILL.md)
+│   ├── pro-max-2-subagents/  (Pro with a concurrent subagent limit of 2)
+│   ├── plus-max-2-subagents/ (Plus with a concurrent subagent limit of 2)
 │   └── plus/
 │       ├── codex/           (config.toml and agents/*.toml)
 │       └── agents/          (skills/astra-orchestrator/SKILL.md)
@@ -32,13 +34,13 @@ The installer asks which Codex plan you are on. Pro uses GPT-6 Astra at medium r
 
 ## Current Plus and Pro configuration
 
-| Role or setting | Plus | Pro |
-|---|---|---|
-| Orchestrator | GPT-5.6 Luna — max | GPT-6 Astra — medium |
-| Explorer, worker, tester, researcher | GPT-5.6 Luna — medium | GPT-5.6 Luna — max |
-| Default subagent | GPT-5.6 Luna — medium | GPT-5.6 Luna — max |
-| Independent reviewer | GPT-6 Astra — low | GPT-6 Astra — low |
-| Concurrent subagent limit | 4 | 4 |
+| Role or setting | Plus | Pro | plus-max-2-subagents | pro-max-2-subagents |
+|---|---|---|---|---|
+| Orchestrator | GPT-5.6 Luna — max | GPT-6 Astra — medium | GPT-5.6 Luna — max | GPT-6 Astra — medium |
+| Explorer, worker, tester, researcher | GPT-5.6 Luna — medium | GPT-5.6 Luna — max | GPT-5.6 Luna — medium | GPT-5.6 Luna — max |
+| Default subagent | GPT-5.6 Luna — medium | GPT-5.6 Luna — max | GPT-5.6 Luna — medium | GPT-5.6 Luna — max |
+| Independent reviewer | GPT-6 Astra — low | GPT-6 Astra — low | GPT-6 Astra — low | GPT-6 Astra — low |
+| Concurrent subagent limit | 4 | 4 | 2 | 2 |
 
 ### Pro — `profiles/pro/codex/config.toml`
 
@@ -130,10 +132,12 @@ Target repository path: ../my-project
 Next, choose your Codex plan:
 
 ```text
-Codex plan:
-  1) Pro  - GPT-6 Astra orchestrates, GPT-5.6 Luna executes, GPT-6 Astra reviews
-  2) Plus - GPT-5.6 Luna (max reasoning) orchestrates, GPT-5.6 Luna executes, GPT-6 Astra reviews
-Select plan [1/2] (default 1):
+Choose Profile to install
+  1) Pro  - GPT-6 Astra (medium) orchestrates, GPT-5.6 Luna (max) executes, GPT-6 Astra (low) reviews
+  2) Plus - GPT-5.6 Luna (max) orchestrates, GPT-5.6 Luna (medium) executes, GPT-6 Astra (low) reviews
+  3) Pro (max 2 subagents) - GPT-6 Astra (medium) orchestrates, GPT-5.6 Luna (max) executes, GPT-6 Astra (low) reviews
+  4) Plus (max 2 subagents) - GPT-5.6 Luna (max) orchestrates, GPT-5.6 Luna (medium) executes, GPT-6 Astra (low) reviews
+Select plan [1-4] (default 1):
 ```
 
 The selected configuration sets both the root and default subagent reasoning.

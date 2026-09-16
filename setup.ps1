@@ -51,12 +51,14 @@ function Read-Confirmation {
 }
 
 function Read-Plan {
-    [Console]::WriteLine('Codex plan:')
-    [Console]::WriteLine('  1) Pro  - GPT-6 Astra orchestrates, GPT-5.6 Luna executes, GPT-6 Astra reviews')
-    [Console]::WriteLine('  2) Plus - GPT-5.6 Luna (max reasoning) orchestrates, GPT-5.6 Luna executes, GPT-6 Astra reviews')
+    [Console]::WriteLine('Choose Profile to install')
+    [Console]::WriteLine('  1) Pro  - GPT-6 Astra (medium) orchestrates, GPT-5.6 Luna (max) executes, GPT-6 Astra (low) reviews')
+    [Console]::WriteLine('  2) Plus - GPT-5.6 Luna (max) orchestrates, GPT-5.6 Luna (medium) executes, GPT-6 Astra (low) reviews')
+    [Console]::WriteLine('  3) Pro (max 2 subagents) - GPT-6 Astra (medium) orchestrates, GPT-5.6 Luna (max) executes, GPT-6 Astra (low) reviews')
+    [Console]::WriteLine('  4) Plus (max 2 subagents) - GPT-5.6 Luna (max) orchestrates, GPT-5.6 Luna (medium) executes, GPT-6 Astra (low) reviews')
 
     while ($true) {
-        [Console]::Write('Select plan [1/2] (default 1): ')
+        [Console]::Write('Select plan [1-4] (default 1): ')
         $answer = [Console]::In.ReadLine()
         if ($null -eq $answer) {
             throw 'Input ended before setup was complete.'
@@ -68,7 +70,11 @@ function Read-Plan {
             '' { return 'pro' }
             '2' { return 'plus' }
             'plus' { return 'plus' }
-            default { [Console]::WriteLine('Please answer 1 (Pro) or 2 (Plus).') }
+            '3' { return 'pro-max-2-subagents' }
+            'pro-max-2-subagents' { return 'pro-max-2-subagents' }
+            '4' { return 'plus-max-2-subagents' }
+            'plus-max-2-subagents' { return 'plus-max-2-subagents' }
+            default { [Console]::WriteLine('Please enter a listed plan number or name.') }
         }
     }
 }

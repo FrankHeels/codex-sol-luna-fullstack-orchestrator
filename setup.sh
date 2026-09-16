@@ -118,12 +118,15 @@ merge_conflicts() {
 }
 
 select_plan() {
-    printf '%s\n' 'Codex plan:'
-    printf '%s\n' '  1) Pro  - GPT-6 Astra orchestrates, GPT-5.6 Luna executes, GPT-6 Astra reviews'
-    printf '%s\n' '  2) Plus - GPT-5.6 Luna (max reasoning) orchestrates, GPT-5.6 Luna executes, GPT-6 Astra reviews'
+    printf '%s\n' 'Choose Profile to install'
+    # Keep the original profiles first for existing numeric selections.
+    printf '%s\n' '  1) Pro  - GPT-6 Astra (medium) orchestrates, GPT-5.6 Luna (max) executes, GPT-6 Astra (low) reviews'
+    printf '%s\n' '  2) Plus - GPT-5.6 Luna (max) orchestrates, GPT-5.6 Luna (medium) executes, GPT-6 Astra (low) reviews'
+    printf '%s\n' '  3) Pro (max 2 subagents) - GPT-6 Astra (medium) orchestrates, GPT-5.6 Luna (max) executes, GPT-6 Astra (low) reviews'
+    printf '%s\n' '  4) Plus (max 2 subagents) - GPT-5.6 Luna (max) orchestrates, GPT-5.6 Luna (medium) executes, GPT-6 Astra (low) reviews'
 
     while :; do
-        printf '%s' 'Select plan [1/2] (default 1): '
+        printf '%s' 'Select plan [1-4] (default 1): '
         if ! IFS= read -r answer; then
             printf '\nSetup cancelled: input ended before setup was complete.\n' >&2
             exit 1
@@ -132,7 +135,9 @@ select_plan() {
         case "$answer" in
             1|pro|PRO|Pro|'') plan=pro; return ;;
             2|plus|PLUS|Plus) plan=plus; return ;;
-            *) printf '%s\n' 'Please answer 1 (Pro) or 2 (Plus).' ;;
+            3|pro-max-2-subagents) plan=pro-max-2-subagents; return ;;
+            4|plus-max-2-subagents) plan=plus-max-2-subagents; return ;;
+            *) printf '%s\n' 'Please enter a listed plan number or name.' ;;
         esac
     done
 }
