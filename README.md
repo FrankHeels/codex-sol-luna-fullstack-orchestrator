@@ -12,9 +12,13 @@ The installer asks which Codex plan you are on. Pro uses GPT-6 Astra at medium r
 │   ├── pro/
 │   │   ├── codex/           (config.toml and agents/*.toml)
 │   │   └── agents/          (skills/astra-orchestrator/SKILL.md)
+│   ├── plus/
+│   │   ├── codex/           (config.toml and agents/*.toml)
+│   │   └── agents/          (skills/astra-orchestrator/SKILL.md)
 │   ├── pro-max-2-subagents/  (Pro with a concurrent subagent limit of 2)
-│   ├── plus-max-2-subagents/ (Plus with a concurrent subagent limit of 2)
-│   └── plus/
+│   │   ├── codex/           (config.toml and agents/*.toml)
+│   │   └── agents/          (skills/astra-orchestrator/SKILL.md)
+│   └── plus-max-2-subagents/ (Plus with a concurrent subagent limit of 2)
 │       ├── codex/           (config.toml and agents/*.toml)
 │       └── agents/          (skills/astra-orchestrator/SKILL.md)
 ├── guides/
