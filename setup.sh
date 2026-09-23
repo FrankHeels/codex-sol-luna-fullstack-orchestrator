@@ -6,14 +6,14 @@ script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 
 cat <<'BANNER'
 +---------------------------------------+
-|    _    ____ _____ ____      _        |
-|   / \  / ___|_   _|  _ \    / \       |
-|  / _ \ \___ \ | | | |_) |  / _ \      |
-| / ___ \ ___) || | |  _ <  / ___ \     |
-|/_/   \_\____/ |_| |_| \_\/_/   \_\    |
+|    ____   ___  ____  _____  __  __    |
+|   / ___| / _ \|  _ \| ____| \ \/ /    |
+|  | |    | | | | | | |  _|    \  /     |
+|  | |___ | |_| | |_| | |___  /  \      |
+|   \____| \___/|____/|_____|/_/\_\     |
 |                                       |
-|       O R C H E S T R A T O R         |
-|   Plan and orchestrate with Astra.    |
+|        O R C H E S T R A T O R        |
+|    Orchestrate with Astra or Sol.     |
 |          Execute with Luna.           |
 +---------------------------------------+
 BANNER
@@ -124,9 +124,11 @@ select_plan() {
     printf '%s\n' '  2) Plus - GPT-5.6 Luna (max) orchestrates, GPT-5.6 Luna (medium) executes, GPT-6 Astra (low) reviews'
     printf '%s\n' '  3) Pro (max 2 subagents) - GPT-6 Astra (medium) orchestrates, GPT-5.6 Luna (max) executes, GPT-6 Astra (low) reviews'
     printf '%s\n' '  4) Plus (max 2 subagents) - GPT-5.6 Luna (max) orchestrates, GPT-5.6 Luna (medium) executes, GPT-6 Astra (low) reviews'
+    printf '%s\n' '  5) GPT6-SolMax-LunaMax - GPT-6 Sol (max) orchestrates and reviews, GPT-6 Luna (max) executes'
+    printf '%s\n' '  6) GPT6-SolMedium-LunaMax - GPT-6 Sol (medium) orchestrates and reviews, GPT-6 Luna (max) executes'
 
     while :; do
-        printf '%s' 'Select plan [1-4] (default 1): '
+        printf '%s' 'Select Profile [1-6] (default 1): '
         if ! IFS= read -r answer; then
             printf '\nSetup cancelled: input ended before setup was complete.\n' >&2
             exit 1
@@ -137,7 +139,9 @@ select_plan() {
             2|plus|PLUS|Plus) plan=plus; return ;;
             3|pro-max-2-subagents) plan=pro-max-2-subagents; return ;;
             4|plus-max-2-subagents) plan=plus-max-2-subagents; return ;;
-            *) printf '%s\n' 'Please enter a listed plan number or name.' ;;
+            5|gpt6-SolMax-LunaMax|GPT6-SolMax-LunaMax) plan=GPT6-SolMax-LunaMax; return ;;
+            6|gpt6-SolMedium-LunaMax|GPT6-SolMedium-LunaMax) plan=GPT6-SolMedium-LunaMax; return ;;
+            *) printf '%s\n' 'Please enter a listed profile number or name.' ;;
         esac
     done
 }
@@ -239,5 +243,5 @@ for component in .codex .agents AGENTS.md; do
     fi
 done
 
-printf '\nSetup complete. %s component(s) installed in %s (plan: %s).\n' "$installed" "$target_dir" "$plan"
+printf '\nSetup complete. %s component(s) installed in %s (profile: %s).\n' "$installed" "$target_dir" "$plan"
 printf '%s\n' 'See guides/ for optional Codex model and Fast-mode configurations.'
