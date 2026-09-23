@@ -1,8 +1,8 @@
 # Codex Sol/Astra Orchestrator + Luna Subagents
 
-A configurable Codex setup with Pro and Plus profiles using GPT-6 Astra and GPT-5.6 Luna, plus GPT-6 Sol/Luna profiles.
+A configurable Codex setup with Pro and Plus profiles using GPT-6 Astra and GPT-6 Luna, plus GPT-6 Sol/Luna profiles.
 
-The installer asks which profile to install. Pro uses GPT-6 Astra at medium reasoning to orchestrate and GPT-5.6 Luna at max reasoning for execution subagents. Plus uses GPT-5.6 Luna at max reasoning to orchestrate and medium reasoning for execution subagents. Both original profiles retain the separate GPT-6 Astra reviewer at low reasoning. The Sol profiles run GPT-6 Sol at max or medium reasoning for the root and reviewer, with GPT-6 Luna at max reasoning for execution subagents.
+The installer asks which profile to install. Pro uses GPT-6 Astra at medium reasoning to orchestrate and GPT-6 Luna at max reasoning for execution subagents. Plus uses GPT-6 Luna at max reasoning to orchestrate and medium reasoning for execution subagents. Both original profiles retain the separate GPT-6 Astra reviewer at low reasoning. The Sol profiles run GPT-6 Sol at max or medium reasoning for the root and reviewer, with GPT-6 Luna at max reasoning for execution subagents.
 
 ## Layout
 
@@ -46,9 +46,9 @@ The installer asks which profile to install. Pro uses GPT-6 Astra at medium reas
 
 | Role or setting | Plus | Pro | plus-max-2-subagents | pro-max-2-subagents |
 |---|---|---|---|---|
-| Orchestrator | GPT-5.6 Luna — max | GPT-6 Astra — medium | GPT-5.6 Luna — max | GPT-6 Astra — medium |
-| Explorer, worker, tester, researcher | GPT-5.6 Luna — medium | GPT-5.6 Luna — max | GPT-5.6 Luna — medium | GPT-5.6 Luna — max |
-| Default subagent | GPT-5.6 Luna — medium | GPT-5.6 Luna — max | GPT-5.6 Luna — medium | GPT-5.6 Luna — max |
+| Orchestrator | GPT-6 Luna — max | GPT-6 Astra — medium | GPT-6 Luna — max | GPT-6 Astra — medium |
+| Explorer, worker, tester, researcher | GPT-6 Luna — medium | GPT-6 Luna — max | GPT-6 Luna — medium | GPT-6 Luna — max |
+| Default subagent | GPT-6 Luna — medium | GPT-6 Luna — max | GPT-6 Luna — medium | GPT-6 Luna — max |
 | Independent reviewer | GPT-6 Astra — low | GPT-6 Astra — low | GPT-6 Astra — low | GPT-6 Astra — low |
 | Concurrent subagent limit | 4 | 4 | 2 | 2 |
 
@@ -64,14 +64,14 @@ sandbox_mode = "workspace-write"
 [agents]
 enabled = true
 max_concurrent_threads_per_session = 4
-default_subagent_model = "gpt-5.6-luna"
+default_subagent_model = "gpt-6-luna"
 default_subagent_reasoning_effort = "max"
 ```
 
 ### Plus — `profiles/plus/codex/config.toml`
 
 ```toml
-model = "gpt-5.6-luna"
+model = "gpt-6-luna"
 model_reasoning_effort = "max"
 
 approval_policy = "on-request"
@@ -80,7 +80,7 @@ sandbox_mode = "workspace-write"
 [agents]
 enabled = true
 max_concurrent_threads_per_session = 4
-default_subagent_model = "gpt-5.6-luna"
+default_subagent_model = "gpt-6-luna"
 default_subagent_reasoning_effort = "medium"
 ```
 
@@ -158,10 +158,10 @@ Next, choose your Codex profile:
 
 ```text
 Choose Profile to install
-  1) Pro  - GPT-6 Astra (medium) orchestrates, GPT-5.6 Luna (max) executes, GPT-6 Astra (low) reviews
-  2) Plus - GPT-5.6 Luna (max) orchestrates, GPT-5.6 Luna (medium) executes, GPT-6 Astra (low) reviews
-  3) Pro (max 2 subagents) - GPT-6 Astra (medium) orchestrates, GPT-5.6 Luna (max) executes, GPT-6 Astra (low) reviews
-  4) Plus (max 2 subagents) - GPT-5.6 Luna (max) orchestrates, GPT-5.6 Luna (medium) executes, GPT-6 Astra (low) reviews
+  1) Pro  - GPT-6 Astra (medium) orchestrates, GPT-6 Luna (max) executes, GPT-6 Astra (low) reviews
+  2) Plus - GPT-6 Luna (max) orchestrates, GPT-6 Luna (medium) executes, GPT-6 Astra (low) reviews
+  3) Pro (max 2 subagents) - GPT-6 Astra (medium) orchestrates, GPT-6 Luna (max) executes, GPT-6 Astra (low) reviews
+  4) Plus (max 2 subagents) - GPT-6 Luna (max) orchestrates, GPT-6 Luna (medium) executes, GPT-6 Astra (low) reviews
   5) GPT6-SolMax-LunaMax - GPT-6 Sol (max) orchestrates and reviews, GPT-6 Luna (max) executes
   6) GPT6-SolMedium-LunaMax - GPT-6 Sol (medium) orchestrates and reviews, GPT-6 Luna (max) executes
 Select Profile [1-6] (default 1):
@@ -250,8 +250,7 @@ and reviewer for an independent final review.
 
 ## Suggested topology
 
-The original Pro profile uses this topology. In the new profiles, replace Astra
-with Sol and GPT-5.6 Luna with GPT-6 Luna.
+The Pro profile uses this topology. In the Sol profiles, replace Astra with Sol.
 
 ```text
                  GPT-6 Astra
@@ -315,7 +314,7 @@ manual or global setup see [`guides/plus-plan.md`](guides/plus-plan.md):
 
 ```toml
 # Root
-model = "gpt-5.6-luna"
+model = "gpt-6-luna"
 model_reasoning_effort = "max"
 ```
 

@@ -12,6 +12,12 @@ PROFILES = {
     "GPT6-SolMedium-LunaMax": "medium",
 }
 LUNA_ROLES = ("explorer", "researcher", "tester", "worker")
+PREVIOUS_PROFILES = {
+    "pro": ("gpt-6-astra", "medium", "max", 4),
+    "plus": ("gpt-6-luna", "max", "medium", 4),
+    "pro-max-2-subagents": ("gpt-6-astra", "medium", "max", 2),
+    "plus-max-2-subagents": ("gpt-6-luna", "max", "medium", 2),
+}
 
 
 class SolProfileTests(unittest.TestCase):
@@ -77,6 +83,62 @@ class SolProfileTests(unittest.TestCase):
                     for component in (
                         Path(".codex/config.toml"),
                         Path(".codex/agents/reviewer.toml"),
+                        Path(".agents/skills/astra-orchestrator/SKILL.md"),
+                    ):
+                        source_component = source / component.parts[0][1:]
+                        self.assertEqual(
+                            (Path(target) / component).read_text(),
+                            (source_component / Path(*component.parts[1:])).read_text(),
+                        )
+
+
+class PreviousProfileTests(unittest.TestCase):
+    def test_models_and_roles(self):
+        for profile, (root_model, root_effort, luna_effort, limit) in PREVIOUS_PROFILES.items():
+            with self.subTest(profile=profile):
+                directory = ROOT / "profiles" / profile
+                config = tomllib.loads((directory / "codex" / "config.toml").read_text())
+                self.assertEqual(config["model"], root_model)
+                self.assertEqual(config["model_reasoning_effort"], root_effort)
+                self.assertEqual(config["agents"]["default_subagent_model"], "gpt-6-luna")
+                self.assertEqual(config["agents"]["default_subagent_reasoning_effort"], luna_effort)
+                self.assertEqual(config["agents"]["max_concurrent_threads_per_session"], limit)
+                for role in LUNA_ROLES:
+                    agent = tomllib.loads(
+                        (directory / "codex" / "agents" / f"{role}.toml").read_text()
+                    )
+                    self.assertEqual(agent["model"], "gpt-6-luna")
+                    self.assertEqual(agent["model_reasoning_effort"], luna_effort)
+                reviewer = tomllib.loads(
+                    (directory / "codex" / "agents" / "reviewer.toml").read_text()
+                )
+                self.assertEqual(reviewer["model"], "gpt-6-astra")
+                self.assertEqual(reviewer["model_reasoning_effort"], "low")
+                skill = (
+                    directory / "agents" / "skills" / "astra-orchestrator" / "SKILL.md"
+                ).read_text()
+                self.assertNotIn("gpt-5.6-luna", skill)
+                self.assertNotIn("GPT-5.6 Luna", skill)
+                self.assertIn(f"`gpt-6-luna` at `{luna_effort}` reasoning", skill)
+
+    def test_installers_select_previous_profiles(self):
+        installers = [("shell", ["sh", str(ROOT / "setup.sh")])]
+        if shutil.which("pwsh"):
+            installers.append(("powershell", ["pwsh", "-NoProfile", "-File", str(ROOT / "setup.ps1")]))
+        for installer, command in installers:
+            for choice, profile in enumerate(PREVIOUS_PROFILES, start=1):
+                with self.subTest(installer=installer, profile=profile), tempfile.TemporaryDirectory() as target:
+                    result = subprocess.run(
+                        command, input=f"{target}\n{choice}\n\n\n\n", text=True, capture_output=True
+                    )
+                    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                    self.assertIn(f"profile: {profile}", result.stdout)
+                    menu_line = next(line for line in result.stdout.splitlines() if line.startswith(f"  {choice}) "))
+                    self.assertIn("GPT-6 Luna", menu_line)
+                    source = ROOT / "profiles" / profile
+                    for component in (
+                        Path(".codex/config.toml"),
+                        Path(".codex/agents/worker.toml"),
                         Path(".agents/skills/astra-orchestrator/SKILL.md"),
                     ):
                         source_component = source / component.parts[0][1:]
