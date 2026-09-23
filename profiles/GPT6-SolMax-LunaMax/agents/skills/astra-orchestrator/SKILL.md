@@ -1,6 +1,6 @@
 ---
 name: astra-orchestrator
-description: Orchestrate complex Codex coding work with GPT-6 Sol at max reasoning as planner/integrator and reviewer and GPT-6 Luna at max reasoning for exploration, implementation, testing, and research. Use for multi-file features, debugging across components, repo-wide changes, parallelizable workstreams, or when the user asks to delegate. Do not use for trivial edits or simple questions.
+description: Orchestrate complex Codex coding work with GPT-6 Sol at max reasoning as planner/integrator and reviewer and GPT-6 Luna at max reasoning for exploration, specialized backend or frontend implementation, testing, and research. Use for multi-file features, debugging across components, repo-wide changes, parallelizable workstreams, or when the user asks to delegate. Do not use for trivial edits or simple questions.
 ---
 
 # Orchestrator — GPT-6 Sol Max + GPT-6 Luna Max
@@ -10,7 +10,7 @@ The user's explicit instructions take precedence over this skill.
 ## Topology
 
 - root: `gpt-6-sol` at `max` reasoning
-- explorer, worker, tester, researcher: `gpt-6-luna` at `max` reasoning
+- explorer, backender, frontender, tester, researcher: `gpt-6-luna` at `max` reasoning
 - reviewer: `gpt-6-sol` at `max` reasoning, in an independent read-only context
 
 The role files in `.codex/agents/` pin these models and reasoning levels; generic subagents inherit the Luna defaults in `.codex/config.toml`. Do not change the root model from within a session.
@@ -19,7 +19,9 @@ The role files in `.codex/agents/` pin these models and reasoning levels; generi
 
 The root owns architecture, task breakdown, integration, and final verification. Keep genuinely small tasks root-only. For work spanning multiple files, independent workstreams, cross-component debugging, or useful independent review, delegate bounded tasks to specialized agents when available. If required delegation is unavailable, report that rather than claiming it happened.
 
-For each delegated task, specify the objective, scope, context, constraints, deliverable, and acceptance criteria. When spawning, select the named role and its pinned model; do not silently replace a Luna worker with the root. Use explorer for mapping code, worker for implementation, tester for verification, researcher for version-specific facts, and reviewer for independent post-change review. Do not let multiple workers edit the same files without explicit ownership boundaries.
+For each delegated task, specify the objective, scope, context, constraints, deliverable, and acceptance criteria. When spawning, select the named role and its pinned model; do not silently replace a Luna implementation agent with the root. Use explorer for mapping code, backender for server-side implementation, frontender for client-side implementation, tester for verification, researcher for version-specific facts, and reviewer for independent post-change review. Do not use a generic worker when a specialized implementation role exists.
+
+Use only the implementation role required by the task. Backender and frontender may work in parallel only when their ownership boundaries and shared contracts are already explicit. Do not allow them to redefine shared API or data contracts independently. Apply `ONE WORKTREE = ONE WRITER`: concurrent modifying agents require isolated worktrees or equivalent environments; read-only agents may share a checkout.
 
 Run independent tasks in parallel and serialize dependent work. Prefer exploration, architecture decision, bounded implementation, targeted testing, independent review when useful, then integration and final verification. Do not spawn every role mechanically. Report agent failures and resolve material findings before finishing.
 

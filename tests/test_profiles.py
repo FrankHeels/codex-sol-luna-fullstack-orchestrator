@@ -11,6 +11,16 @@ PROFILES = {
     "GPT6-SolMax-LunaMax": "max",
     "GPT6-SolMedium-LunaMax": "medium",
 }
+SOL_PROFILE_ROLES = {
+    "GPT6-SolMax-LunaMax": (
+        "explorer",
+        "researcher",
+        "tester",
+        "backender",
+        "frontender",
+    ),
+    "GPT6-SolMedium-LunaMax": ("explorer", "researcher", "tester", "worker"),
+}
 LUNA_ROLES = ("explorer", "researcher", "tester", "worker")
 PREVIOUS_PROFILES = {
     "pro": ("gpt-6-astra", "medium", "max", 4),
@@ -33,14 +43,18 @@ class SolProfileTests(unittest.TestCase):
                 self.assertEqual(config["agents"]["default_subagent_model"], "gpt-6-luna")
                 self.assertEqual(config["agents"]["default_subagent_reasoning_effort"], "max")
                 self.assertEqual(config["agents"]["max_concurrent_threads_per_session"], 4)
-                for role in LUNA_ROLES:
+                for role in SOL_PROFILE_ROLES[profile]:
                     agent = tomllib.loads(
                         (directory / "codex" / "agents" / f"{role}.toml").read_text()
                     )
                     self.assertEqual(agent["name"], role)
                     self.assertEqual(agent["model"], "gpt-6-luna")
                     self.assertEqual(agent["model_reasoning_effort"], "max")
-                    expected_mode = "workspace-write" if role in ("worker", "tester") else "read-only"
+                    expected_mode = (
+                        "workspace-write"
+                        if role in ("worker", "backender", "frontender", "tester")
+                        else "read-only"
+                    )
                     self.assertEqual(agent["sandbox_mode"], expected_mode)
                 reviewer = tomllib.loads(
                     (directory / "codex" / "agents" / "reviewer.toml").read_text()
@@ -52,8 +66,13 @@ class SolProfileTests(unittest.TestCase):
                     directory / "agents" / "skills" / "astra-orchestrator" / "SKILL.md"
                 ).read_text()
                 self.assertIn(f"root: `gpt-6-sol` at `{effort}` reasoning", skill)
+                expected_roles = (
+                    "explorer, backender, frontender, tester, researcher"
+                    if profile == "GPT6-SolMax-LunaMax"
+                    else "explorer, worker, tester, researcher"
+                )
                 self.assertIn(
-                    "explorer, worker, tester, researcher: `gpt-6-luna` at `max` reasoning",
+                    f"{expected_roles}: `gpt-6-luna` at `max` reasoning",
                     skill,
                 )
 
@@ -80,16 +99,28 @@ class SolProfileTests(unittest.TestCase):
                     self.assertIn(f"profile: {profile}", result.stdout)
                     self.assertIn(f") {profile} -", result.stdout)
                     source = ROOT / "profiles" / profile
-                    for component in (
+                    implementation_roles = (
+                        ("backender", "frontender")
+                        if profile == "GPT6-SolMax-LunaMax"
+                        else ("worker",)
+                    )
+                    components = [
                         Path(".codex/config.toml"),
                         Path(".codex/agents/reviewer.toml"),
                         Path(".agents/skills/astra-orchestrator/SKILL.md"),
-                    ):
+                    ]
+                    components.extend(
+                        Path(f".codex/agents/{role}.toml")
+                        for role in implementation_roles
+                    )
+                    for component in components:
                         source_component = source / component.parts[0][1:]
                         self.assertEqual(
                             (Path(target) / component).read_text(),
                             (source_component / Path(*component.parts[1:])).read_text(),
                         )
+                    if profile == "GPT6-SolMax-LunaMax":
+                        self.assertFalse((Path(target) / ".codex/agents/worker.toml").exists())
 
 
 class PreviousProfileTests(unittest.TestCase):

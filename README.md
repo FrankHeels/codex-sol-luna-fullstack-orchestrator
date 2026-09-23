@@ -15,7 +15,7 @@ the reviewer uses Astra for Pro/Plus and Sol for Sol profiles.
                       |
       +---------------+---------------+
       |               |               |
-   explorer          worker         researcher
+   explorer    implementation roles  researcher
   GPT-6 Luna       GPT-6 Luna       GPT-6 Luna
       |               |
       +-------+-------+
@@ -36,7 +36,7 @@ the reviewer uses Astra for Pro/Plus and Sol for Sol profiles.
 1. Clone this repository and enter it:
 
    ```sh
-   git clone https://github.com/donvito/codex-astra-luna-orchestrator.git
+   git clone https://github.com/FrankHeels/codex-astra-luna-orchestrator.git
    cd codex-astra-luna-orchestrator
    ```
 
@@ -85,10 +85,11 @@ my-project/
 │   ├── config.toml
 │   └── agents/
 │       ├── explorer.toml
+│       ├── backender.toml
+│       ├── frontender.toml
 │       ├── researcher.toml
 │       ├── reviewer.toml
-│       ├── tester.toml
-│       └── worker.toml
+│       └── tester.toml
 ├── .agents/
 │   └── skills/
 │       └── astra-orchestrator/
@@ -99,6 +100,9 @@ my-project/
 `profiles/<profile>/codex/` becomes `.codex/`, and
 `profiles/<profile>/agents/` becomes `.agents/`. The root `AGENTS.md` is
 copied to the target, or its instructions are appended if that file exists.
+The tree above shows `GPT6-SolMax-LunaMax`, which replaces the generic
+`worker.toml` with specialized `backender.toml` and `frontender.toml` roles.
+The other profiles keep their original agent sets.
 
 ## How to use the skill
 
@@ -115,7 +119,7 @@ it explicitly:
 ```text
 $astra-orchestrator
 Implement the invoice export endpoint. Use the explorer to map the path,
-a worker to implement it, and the tester and reviewer to verify it.
+the backender to implement it, and the tester and reviewer to verify it.
 ```
 
 The skill keeps the `astra-orchestrator` name in every profile so the shared
@@ -129,13 +133,14 @@ The skill keeps the `astra-orchestrator` name in every profile so the shared
 | 2 | `plus` | Luna max | Luna medium | Astra low | 4 |
 | 3 | `pro-max-2-subagents` | Astra medium | Luna max | Astra low | 2 |
 | 4 | `plus-max-2-subagents` | Luna max | Luna medium | Astra low | 2 |
-| 5 | `GPT6-SolMax-LunaMax` | Sol max | Luna max | Sol max | 4 |
+| 5 | `GPT6-SolMax-LunaMax` | Sol max | Luna max (`backender`, `frontender`) | Sol max | 4 |
 | 6 | `GPT6-SolMedium-LunaMax` | Sol medium | Luna max | Sol medium | 4 |
 
-All models above are GPT-6. Execution roles are explorer, worker, tester,
-and researcher; named roles pin their models and reasoning levels independently
-of the default subagent settings. Each ready-to-copy profile lives under
-`profiles/<profile>/`.
+All models above are GPT-6. `GPT6-SolMax-LunaMax` uses explorer, backender,
+frontender, tester, and researcher. The other profiles retain explorer, worker,
+tester, and researcher. Named roles pin their models and reasoning levels
+independently of the default subagent settings. Each ready-to-copy profile lives
+under `profiles/<profile>/`.
 
 For manual project setup, copy the selected profile's `codex/` and `agents/`
 to the target repository as `.codex/` and `.agents/`, and add this repository's
