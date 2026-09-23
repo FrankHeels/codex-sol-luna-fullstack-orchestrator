@@ -1,0 +1,90 @@
+import shutil
+import subprocess
+import tempfile
+import tomllib
+import unittest
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+PROFILES = {
+    "GPT6-SolMax-LunaMax": "max",
+    "GPT6-SolMedium-LunaMax": "medium",
+}
+LUNA_ROLES = ("explorer", "researcher", "tester", "worker")
+
+
+class SolProfileTests(unittest.TestCase):
+    def test_profile_models_and_roles(self):
+        for profile, effort in PROFILES.items():
+            with self.subTest(profile=profile):
+                directory = ROOT / "profiles" / profile
+                config = tomllib.loads((directory / "codex" / "config.toml").read_text())
+                self.assertEqual(config["model"], "gpt-6-sol")
+                self.assertEqual(config["model_reasoning_effort"], effort)
+                self.assertEqual(config["sandbox_mode"], "workspace-write")
+                self.assertTrue(config["agents"]["enabled"])
+                self.assertEqual(config["agents"]["default_subagent_model"], "gpt-6-luna")
+                self.assertEqual(config["agents"]["default_subagent_reasoning_effort"], "max")
+                self.assertEqual(config["agents"]["max_concurrent_threads_per_session"], 4)
+                for role in LUNA_ROLES:
+                    agent = tomllib.loads(
+                        (directory / "codex" / "agents" / f"{role}.toml").read_text()
+                    )
+                    self.assertEqual(agent["name"], role)
+                    self.assertEqual(agent["model"], "gpt-6-luna")
+                    self.assertEqual(agent["model_reasoning_effort"], "max")
+                    expected_mode = "workspace-write" if role in ("worker", "tester") else "read-only"
+                    self.assertEqual(agent["sandbox_mode"], expected_mode)
+                reviewer = tomllib.loads(
+                    (directory / "codex" / "agents" / "reviewer.toml").read_text()
+                )
+                self.assertEqual(reviewer["model"], "gpt-6-sol")
+                self.assertEqual(reviewer["model_reasoning_effort"], effort)
+                self.assertEqual(reviewer["sandbox_mode"], "read-only")
+                skill = (
+                    directory / "agents" / "skills" / "astra-orchestrator" / "SKILL.md"
+                ).read_text()
+                self.assertIn(f"root: `gpt-6-sol` at `{effort}` reasoning", skill)
+                self.assertIn(
+                    "explorer, worker, tester, researcher: `gpt-6-luna` at `max` reasoning",
+                    skill,
+                )
+
+    def test_installers_select_profiles(self):
+        installers = [("shell", ["sh", str(ROOT / "setup.sh")])]
+        if shutil.which("pwsh"):
+            installers.append(("powershell", ["pwsh", "-NoProfile", "-File", str(ROOT / "setup.ps1")]))
+        choices = (
+            ("5", "GPT6-SolMax-LunaMax"),
+            ("6", "GPT6-SolMedium-LunaMax"),
+            ("GPT6-SolMax-LunaMax", "GPT6-SolMax-LunaMax"),
+            ("GPT6-SolMedium-LunaMax", "GPT6-SolMedium-LunaMax"),
+            ("gpt6-SolMax-LunaMax", "GPT6-SolMax-LunaMax"),
+            ("gpt6-SolMedium-LunaMax", "GPT6-SolMedium-LunaMax"),
+        )
+        for installer, command in installers:
+            for choice, profile in choices:
+                with self.subTest(installer=installer, choice=choice), tempfile.TemporaryDirectory() as target:
+                    result = subprocess.run(
+                        command, input=f"{target}\n{choice}\n\n\n\n", text=True, capture_output=True
+                    )
+                    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                    self.assertIn("Select Profile [1-6] (default 1):", result.stdout)
+                    self.assertIn(f"profile: {profile}", result.stdout)
+                    self.assertIn(f") {profile} -", result.stdout)
+                    source = ROOT / "profiles" / profile
+                    for component in (
+                        Path(".codex/config.toml"),
+                        Path(".codex/agents/reviewer.toml"),
+                        Path(".agents/skills/astra-orchestrator/SKILL.md"),
+                    ):
+                        source_component = source / component.parts[0][1:]
+                        self.assertEqual(
+                            (Path(target) / component).read_text(),
+                            (source_component / Path(*component.parts[1:])).read_text(),
+                        )
+
+
+if __name__ == "__main__":
+    unittest.main()

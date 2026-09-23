@@ -7,14 +7,14 @@ $ErrorActionPreference = 'Stop'
 $scriptDir = Split-Path -Parent $PSCommandPath
 $banner = @'
 +---------------------------------------+
-|    _    ____ _____ ____      _        |
-|   / \  / ___|_   _|  _ \    / \       |
-|  / _ \ \___ \ | | | |_) |  / _ \      |
-| / ___ \ ___) || | |  _ <  / ___ \     |
-|/_/   \_\____/ |_| |_| \_\/_/   \_\    |
+|    ____   ___  ____  _____  __  __    |
+|   / ___| / _ \|  _ \| ____| \ \/ /    |
+|  | |    | | | | | | |  _|    \  /     |
+|  | |___ | |_| | |_| | |___  /  \      |
+|   \____| \___/|____/|_____|/_/\_\     |
 |                                       |
-|       O R C H E S T R A T O R         |
-|   Plan and orchestrate with Astra.    |
+|        O R C H E S T R A T O R        |
+|    Orchestrate with Astra or Sol.     |
 |          Execute with Luna.           |
 +---------------------------------------+
 '@
@@ -56,9 +56,11 @@ function Read-Plan {
     [Console]::WriteLine('  2) Plus - GPT-5.6 Luna (max) orchestrates, GPT-5.6 Luna (medium) executes, GPT-6 Astra (low) reviews')
     [Console]::WriteLine('  3) Pro (max 2 subagents) - GPT-6 Astra (medium) orchestrates, GPT-5.6 Luna (max) executes, GPT-6 Astra (low) reviews')
     [Console]::WriteLine('  4) Plus (max 2 subagents) - GPT-5.6 Luna (max) orchestrates, GPT-5.6 Luna (medium) executes, GPT-6 Astra (low) reviews')
+    [Console]::WriteLine('  5) GPT6-SolMax-LunaMax - GPT-6 Sol (max) orchestrates and reviews, GPT-6 Luna (max) executes')
+    [Console]::WriteLine('  6) GPT6-SolMedium-LunaMax - GPT-6 Sol (medium) orchestrates and reviews, GPT-6 Luna (max) executes')
 
     while ($true) {
-        [Console]::Write('Select plan [1-4] (default 1): ')
+        [Console]::Write('Select Profile [1-6] (default 1): ')
         $answer = [Console]::In.ReadLine()
         if ($null -eq $answer) {
             throw 'Input ended before setup was complete.'
@@ -74,7 +76,11 @@ function Read-Plan {
             'pro-max-2-subagents' { return 'pro-max-2-subagents' }
             '4' { return 'plus-max-2-subagents' }
             'plus-max-2-subagents' { return 'plus-max-2-subagents' }
-            default { [Console]::WriteLine('Please enter a listed plan number or name.') }
+            '5' { return 'GPT6-SolMax-LunaMax' }
+            'gpt6-solmax-lunamax' { return 'GPT6-SolMax-LunaMax' }
+            '6' { return 'GPT6-SolMedium-LunaMax' }
+            'gpt6-solmedium-lunamax' { return 'GPT6-SolMedium-LunaMax' }
+            default { [Console]::WriteLine('Please enter a listed profile number or name.') }
         }
     }
 }
@@ -348,7 +354,7 @@ try {
     }
 
     [Console]::WriteLine()
-    [Console]::WriteLine("Setup complete. $installed component(s) installed in $targetDirectory (plan: $plan).")
+    [Console]::WriteLine("Setup complete. $installed component(s) installed in $targetDirectory (profile: $plan).")
     [Console]::WriteLine('See guides/ for optional Codex model and Fast-mode configurations.')
 }
 catch {
